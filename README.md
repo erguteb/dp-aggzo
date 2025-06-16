@@ -2,7 +2,7 @@
 
 This is for testing the funtionality and reproducing the performance (i.e., test accuracy) of DP-AggZO with differential privacy (DP) as constraints.
 
-# Recommended Hardware Spec
+## Recommended Hardware Spec
 Linux machine with Ubuntu 22.04.4 and RTX 4090 GPU 24GB, or above (larger GPU memory is needed if run larger models, e.g., OPT 6.7B).
 
 Abstract: The main idea of our proposed method, DP-AggZO, is to aggregate *multiple zeroth-order estimates* for the exact gradients, computed over independent perturbation vectors (random Gaussian vectors), before enforcing differential privacy (i.e., artificial clipping, taking the average, and then injecting random DP noises). Compared with the vanilla DPZO (or DPZero), which is effectively a degenerated version of DP-AggZO with only *one* zeroth-order estimate, our DP-AggZO achieves much better utility under the same privacy constraints. Our DP-AggZO also outperforms the state-of-the-art DP-AdamW in some cases.
