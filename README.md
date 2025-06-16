@@ -2,6 +2,9 @@
 
 This is for testing the funtionality and reproducing the performance (i.e., test accuracy) of DP-AggZO with differential privacy (DP) as constraints.
 
+# Recommended Hardware Spec
+Linux machine with Ubuntu 22.04.4 and RTX 4090 GPU 24GB, or above (larger GPU memory is needed if run larger models, e.g., OPT 6.7B).
+
 Abstract: The main idea of our proposed method, DP-AggZO, is to aggregate *multiple zeroth-order estimates* for the exact gradients, computed over independent perturbation vectors (random Gaussian vectors), before enforcing differential privacy (i.e., artificial clipping, taking the average, and then injecting random DP noises). Compared with the vanilla DPZO (or DPZero), which is effectively a degenerated version of DP-AggZO with only *one* zeroth-order estimate, our DP-AggZO achieves much better utility under the same privacy constraints. Our DP-AggZO also outperforms the state-of-the-art DP-AdamW in some cases.
 
 We refer to the number of random directions in DP-AggZO as `K` (`K>1` is an integer). DPZero/DPZO is effectively, DP-AggZO with `K=1`.
@@ -116,7 +119,7 @@ You will observe the result of DP-AggZO (`K = 64`) for `epsilon=2` (third row in
 These scripts take around 5 hours to run on a RTX 4090 GPU, and 14 hours on a RTX A5000 GPU. 
 The test accuracy may also vary -- on H20 and A5000 GPUs, the test accuracy is around `74%`; on 4090 GPU, the test accuracy is around `71%`.
 
-Nevertheless, the utility should be much better than the original DPZero/DPZO and is already comparable to DP-AdamW (see Table 2 on [Page 9](https://arxiv.org/pdf/2310.09639)). You can reproduce the result using the following script of DP-AggZO with `K=1`.
+Nevertheless, the utility should be much better than the original DPZero/DPZO (see Table 2 on [Page 9](https://arxiv.org/pdf/2310.09639)). You can also reproduce that result using the following script of DP-AggZO with `K=1`.
 ``` bash
 CUDA_VISIBLE_DEVICES=0 DPZERO_PRIVACY_EPS=2 DP_SAMPLE_RATE=0.0416 STEP=5000 SEED=42 NUM_DIRECTION=1 RANDOM_DIRECTION_SEED=100 LR=2e-6 DPZERO_THRESHOLD=200  TASK="MNLI" bash examples/dpaggzo.sh
 ```
@@ -141,9 +144,15 @@ Similarly, the utility (should be below `70%`) is much worse than DP-AggZO.
 
 **MNLI** with `eps=0.5` (i.e., the small epsilon regime, Table 4 in Page 13)
 
+The following script is for DP-AggZO.
 ```bash
 CUDA_VISIBLE_DEVICES=0 DPZERO_PRIVACY_EPS=0.5 DP_SAMPLE_RATE=0.0416 STEP=500 SEED=42 NUM_DIRECTION=64 RANDOM_DIRECTION_SEED=100 LR=2e-4 DPZERO_THRESHOLD=1  TASK="MNLI" bash examples/dpaggzo.sh
 ```
+You can verify that the above result utility (around `63.5%` on H20 and A5000 GPUs) is better than the following that runs DP-AdamW.
+```bash
+CUDA_VISIBLE_DEVICES=0 DP_SAMPLE_RATE=0.0416 STEP=1000 SEED=42 LR=1e-4 DPSGD_THRESHOLD=10 DPSGD_PRIVACY_EPS=0.5 DPSGD_PRIVACY_DELTA=1e-5 TASK="MNLI" bash examples/dpsgd.sh
+```
+The result utility should be around `62%`, aligning with Table 4 in Page 13, and showing that DP-AggZO sometimes outperforms DP-AdamW.
 
 With `eps=1`, the result utility for DP-AggZO (`K=64`) is can be higher (around `69%` on A5000 GPU).
 
@@ -230,3 +239,5 @@ Also, feel free to change from `opt-1.3b` to `opt-6.7b` if you have a large GPU.
 
 ### Memory consumption of DP-AggZO
 Finally, feel free to change `NUM_DIRECTIONS` but you will notice that the memory consumed is roughly the same. As we have claimed, DP-AggZO maintains the memory consumption as DPZero. 
+
+Thanks!
